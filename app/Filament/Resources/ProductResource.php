@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources;
 
-use Dom\Text;
-use Filament\Forms;
 use Filament\Tables;
 use App\Models\Product;
 use Filament\Forms\Form;
@@ -18,17 +16,24 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
+
 use App\Filament\Resources\ProductResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\ProductResource\RelationManagers;
+use App\Filament\Resources\CategoryResource;
+
+
 
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
-    protected static ?string $navigationLabel = 'Productos';
 
+    protected static ?string $navigationLabel = 'Productos';
     protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
+
+    protected static ?string $slug = 'productos';
+    protected static ?string $label = 'Producto';
+    protected static ?string $pluralLabel = 'Productos';
+
+
 
     public static function form(Form $form): Form
     {
@@ -47,8 +52,15 @@ class ProductResource extends Resource
                             ->label('Código')
                             ->required()
                             ->maxLength(20)
-                            ->unique()
-                            ->placeholder('Ej. FIC-001'),
+                            ->unique(table: 'products', column: 'code', ignorable: fn($record)=> $record)
+                            ->placeholder('Ej. FIC-001')
+
+                            ->rules(
+                                ['unique:products,code,']
+                            )
+                            ->validationMessages([
+                                'unique'=>'El código ya existe, por favor ingrese otro.'
+                            ]),
 
                         TextInput::make('name')
                             ->label('Nombre')
@@ -65,15 +77,20 @@ class ProductResource extends Resource
                             ->required()
                             ->numeric()
                             ->minValue(0)
+
                             ->suffix('Bs'),
+
 
                         Select::make('category_id')
                             ->label('Categoría')
                             ->searchable()
-                            ->required()
                             ->preload()
                             ->relationship('category', 'name')
-                            ->placeholder('Seleccionar categoría'),
+                            ->placeholder('Seleccionar categoría')
+                            ->required()
+                            ->createOptionForm(
+                                CategoryResource::getFormSchema(),
+                            ),
 
                     ]),
 

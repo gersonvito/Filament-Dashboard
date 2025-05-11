@@ -23,19 +23,22 @@ class CategoryResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                TextInput::make('name')
-                    ->required()
-                    ->label('Nombre de la categoría')
-                    ->placeholder('Ej. Auriculares'),
+        return $form->schema(static::getFormSchema());
+    }
 
-                    TextInput::make('summary')
-                    ->required()
-                    ->label('Resumen')
-                    ->placeholder('Agregar un resumen de la categoría'),
+    public static function getFormSchema(): array
+    {
+        return [
+            TextInput::make('name')
+                ->required()
+                ->label('Nombre de la categoría')
+                ->placeholder('Ej. Auriculares'),
 
-            ]);
+            TextInput::make('summary')
+                ->required()
+                ->label('Resumen')
+                ->placeholder('Agregar un resumen de la categoría'),
+        ];
     }
 
     public static function table(Table $table): Table
