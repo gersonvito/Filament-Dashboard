@@ -19,13 +19,13 @@ use Filament\Tables\Filters\SelectFilter;
 
 use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\CategoryResource;
-
-
+use Filament\Tables\Actions\ActionGroup;
 
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
+    protected static ?string $navigationGroup = 'Menú principal';
     protected static ?string $navigationLabel = 'Productos';
     protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
 
@@ -109,6 +109,7 @@ class ProductResource extends Resource
                 Section::make('Descripción detallada')
                     ->schema([
                         RichEditor::make('description')
+
                             ->label("Descripcion")
                             ->required()
                     ]),
@@ -133,16 +134,26 @@ class ProductResource extends Resource
                     ->label('Nombre'),
 
                 TextColumn::make('summary')
-                    ->label('Resumen'),
+                    ->label('Resumen')
+                    ->toggleable(),
 
-                    TextColumn::make('is_active')
+                TextColumn::make('is_active')
                     ->label('Estado')
                     ->badge()
                     ->color(fn(bool $state): string => $state ? 'success' : 'danger')
                     ->formatStateUsing(fn(bool $state): string => $state ? 'Activo' : 'Inactivo'),
 
-                    TextColumn::make('created_at')
-                    ->label('Fecha de creación'),
+                TextColumn::make('created_at')
+                    ->label('Fecha de creación')
+                    ->sortable()
+                    ->toggleable()
+                    ->dateTime(),
+
+                TextColumn::make('updated_at')
+                    ->label('Fecha de actualizacion')
+                    ->sortable()
+                    ->toggleable()
+                    ->dateTime(),
 
 
             ])
@@ -152,7 +163,13 @@ class ProductResource extends Resource
                     ->relationship('category', 'name')
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+
+                ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                ]),
+
+
+                //Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
