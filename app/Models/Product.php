@@ -5,9 +5,18 @@ namespace App\Models;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
+
+    protected static function booted()
+    {
+        static::creating(function ($product) {
+            $product->slug = Str::slug($product->name);
+        });
+    }
+
     protected $fillable = [
         'name',
         'slug',
@@ -26,10 +35,10 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
-    protected static function booted()
+    public function inventories(): HasMany
     {
-        static::creating(function ($product) {
-            $product->slug = Str::slug($product->name);
-        });
+        return $this->hasMany(Inventory::class);
     }
+
+
 }
